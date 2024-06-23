@@ -28,6 +28,29 @@ app.get('/api/persons', (request, response) => {
     response.json(phonebooks)
 })
 
+const getDateFormat = () => {
+    const options = {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        timeZoneName: 'long',
+        hour12: false
+    };
+    const time = new Intl.DateTimeFormat('en-US', options).format(Date.now());
+    return '<p>' + time + '</p>';
+}
+
+app.get('/info', (request, response) => {
+    const numberOfPeople = phonebooks.length;
+    const infoForPeople = `<p>Phonebook has info for ${numberOfPeople} people</p>`;
+
+    response.send(infoForPeople + getDateFormat());
+})
+
 const PORT = 3001
 
 app.listen(PORT, () => {
