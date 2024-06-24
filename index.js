@@ -76,8 +76,28 @@ const generateId = () => {
     return Math.floor(Math.random() * 1000000);
 }
 
+const validateNewPerson = (newPerson) => {
+    if (!newPerson.name || !newPerson.number) {
+        const whatIsMissing = newPerson.name ? 'number' : 'name'
+        return `${whatIsMissing} is missing`
+    }
+
+    const duplicateName = phonebooks.find(person => person.name === newPerson.name)
+    if (duplicateName) {
+        return 'name must be unique'
+    }
+    return '';
+}
+
 app.post('/api/persons', (req, res) => {
     let newPerson = req.body;
+
+    const validationResult = validateNewPerson(newPerson)
+    if (validationResult !== '') {
+        return res.status(400).json({
+            error: validationResult
+        })
+    }
 
     newPerson = {...newPerson, "id": String(generateId())}
     phonebooks = phonebooks.concat(newPerson);
