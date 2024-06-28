@@ -1,6 +1,10 @@
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+require('dotenv').config()
+const Contact = require('./models/contact')
+const mongoose = require("mongoose");
+
 
 const app = express()
 
@@ -36,7 +40,12 @@ let phonebooks = [
 ]
 
 app.get('/api/persons', (request, response) => {
-    response.json(phonebooks)
+    Contact
+        .find({})
+        .then((result) => {
+            response.json(result)
+            mongoose.connection.close()
+        })
 })
 
 const getDateFormat = () => {
@@ -110,12 +119,16 @@ app.post('/api/persons', (req, res) => {
     }
 
     newPerson = {...newPerson, "id": String(generateId())}
-    phonebooks = phonebooks.concat(newPerson);
+    newPerson = new Contact({
+        id: newPerson.id,
+        name: newPerson.name,
+        number: newPerson.number
+    })
 
-    res.json(newPerson)
+    newPerson.save().then(savedPerson => res.json(savedPerson))
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
