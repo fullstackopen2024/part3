@@ -3,7 +3,6 @@ const morgan = require('morgan')
 const cors = require('cors')
 require('dotenv').config()
 const Contact = require('./models/contact')
-const mongoose = require("mongoose");
 
 
 const app = express()
@@ -44,7 +43,6 @@ app.get('/api/persons', (request, response) => {
         .find({})
         .then((result) => {
             response.json(result)
-            mongoose.connection.close()
         })
 })
 
@@ -86,14 +84,10 @@ app.get('/api/persons/:id', (req, res) => {
 app.delete('/api/persons/:id', (req, res) => {
     const id = req.params.id;
 
-    phonebooks = phonebooks.filter(note => note.id !== id)
-
-    res.status(204).end()
+    Contact.findByIdAndDelete(id)
+        .then(() => res.status(204).end())
+        .catch(error => console.log(error))
 })
-
-const generateId = () => {
-    return Math.floor(Math.random() * 1000000);
-}
 
 const validateNewPerson = (newPerson) => {
     if (!newPerson.name || !newPerson.number) {
