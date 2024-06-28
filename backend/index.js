@@ -118,9 +118,7 @@ app.post('/api/persons', (req, res) => {
         })
     }
 
-    newPerson = {...newPerson, "id": String(generateId())}
     newPerson = new Contact({
-        id: newPerson.id,
         name: newPerson.name,
         number: newPerson.number
     })
