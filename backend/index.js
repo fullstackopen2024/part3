@@ -75,10 +75,10 @@ app.get('/info', (request, response, next) => {
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
-    const id = req.params.id;
+    const { id } = req.params;
 
     Contact
-        .findById({id})
+        .findById(id)
         .then(result => {
             if (result) {
                 res.json(result)
@@ -138,10 +138,11 @@ const errorHandler = (error, request, response, next) => {
     next(error)
 }
 
-app.use(errorHandler)
 
 const PORT = process.env.PORT
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })
+
+app.use(errorHandler)
