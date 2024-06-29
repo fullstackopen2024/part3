@@ -109,7 +109,8 @@ app.post('/api/persons', async (req, res) => {
 app.put('/api/persons/:id', (req, res, next) => {
     let updatedPerson = req.body;
 
-    Contact.findByIdAndUpdate(updatedPerson.id, updatedPerson, {new: true})
+    Contact
+        .findByIdAndUpdate(updatedPerson.id, updatedPerson, {new: true})
         .then(result => res.json(result))
         .catch(error => next(error))
 })
