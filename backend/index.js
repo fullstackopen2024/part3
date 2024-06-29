@@ -74,36 +74,18 @@ app.delete('/api/persons/:id', (req, res, next) => {
         .catch(error => next(error))
 })
 
-const validateNewPerson = async (newPerson) => {
-    if (!newPerson.name || !newPerson.number) {
-        const whatIsMissing = newPerson.name ? 'number' : 'name'
-        return `${whatIsMissing} is missing`
-    }
 
-    const duplicateName = await Contact.find({}).find(person => person.name === newPerson.name)
-    if (duplicateName) {
-        return 'name must be unique'
-    }
-    return '';
-}
-
-app.post('/api/persons', async (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     let newPerson = req.body;
-
-    const validationResult = await validateNewPerson(newPerson)
-    console.log(validationResult)
-    if (validationResult !== '') {
-        return res.status(400).json({
-            error: validationResult
-        })
-    }
 
     newPerson = new Contact({
         name: newPerson.name,
         number: newPerson.number
     })
 
-    newPerson.save().then(savedPerson => res.json(savedPerson))
+    newPerson.save()
+        .then(savedPerson => res.json(savedPerson))
+        .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
@@ -120,6 +102,8 @@ const errorHandler = (error, request, response, next) => {
 
     if (error.name === 'CastError') {
         return response.status(400).send({error: 'malformatted id'})
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message })
     }
 
     next(error)

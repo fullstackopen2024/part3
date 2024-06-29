@@ -32,6 +32,13 @@ function App() {
         }
     }
 
+    const errorReceivedFromServer = (error) => {
+        return {
+            message: `Server returned an error: ${error.response.data.error}`,
+            type: `error`
+        }
+    }
+
     function handleNameChange(event) {
         setNewName(event.target.value)
     }
@@ -69,12 +76,18 @@ function App() {
         }
 
         const newPerson = {name: newName, number: newNumber};
-        personService.addPerson(newPerson).then(response => {
-            setPersons(persons.concat(response.data))
+        personService.addPerson(newPerson)
+            .then(response => {
+                setPersons(persons.concat(response.data))
 
-            setNotificationMessage(successfullyAddedPersonNotification(response.data.name))
-            setTimeout(() => setNotificationMessage(null), 5000)
-        })
+                setNotificationMessage(successfullyAddedPersonNotification(response.data.name))
+                setTimeout(() => setNotificationMessage(null), 5000)
+            })
+            .catch(error => {
+                setNotificationMessage(errorReceivedFromServer(error))
+                setTimeout(() => setNotificationMessage(null), 5000)
+
+            })
         setNewName('')
         setNewNumber('')
     }
