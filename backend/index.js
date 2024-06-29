@@ -15,29 +15,6 @@ morgan.token('req-body', function (req) {
     return JSON.stringify(req.body)
 })
 
-let phonebooks = [
-    {
-        "id": "1",
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": "2",
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": "3",
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": "4",
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
-
 app.get('/api/persons', (request, response, next) => {
     Contact
         .find({})
@@ -75,7 +52,7 @@ app.get('/info', (request, response, next) => {
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
-    const { id } = req.params;
+    const {id} = req.params;
 
     Contact
         .findById(id)
@@ -97,23 +74,24 @@ app.delete('/api/persons/:id', (req, res, next) => {
         .catch(error => next(error))
 })
 
-const validateNewPerson = (newPerson) => {
+const validateNewPerson = async (newPerson) => {
     if (!newPerson.name || !newPerson.number) {
         const whatIsMissing = newPerson.name ? 'number' : 'name'
         return `${whatIsMissing} is missing`
     }
 
-    const duplicateName = phonebooks.find(person => person.name === newPerson.name)
+    const duplicateName = await Contact.find({}).find(person => person.name === newPerson.name)
     if (duplicateName) {
         return 'name must be unique'
     }
     return '';
 }
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', async (req, res) => {
     let newPerson = req.body;
 
-    const validationResult = validateNewPerson(newPerson)
+    const validationResult = await validateNewPerson(newPerson)
+    console.log(validationResult)
     if (validationResult !== '') {
         return res.status(400).json({
             error: validationResult
@@ -126,6 +104,14 @@ app.post('/api/persons', (req, res) => {
     })
 
     newPerson.save().then(savedPerson => res.json(savedPerson))
+})
+
+app.put('/api/persons/:id', (req, res, next) => {
+    let updatedPerson = req.body;
+
+    Contact.findByIdAndUpdate(updatedPerson.id, updatedPerson, {new: true})
+        .then(result => res.json(result))
+        .catch(error => next(error))
 })
 
 const errorHandler = (error, request, response, next) => {
